@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xenon | View Code</title>
+    <style>
+        :root { --blue: #00d2ff; --dark: #0a0a0a; }
+        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--blue); text-transform: uppercase; letter-spacing: 2px; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+        button { background: var(--blue); border: none; padding: 10px 20px; border-radius: 5px; color: var(--dark); font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { box-shadow: 0 0 15px var(--blue); transform: scale(1.02); }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 15px; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); }
+        pre { background: rgba(0, 0, 0, 0.7); border: 1px solid var(--blue); padding: 20px; border-radius: 5px; overflow-x: auto; color: #00ff00; font-family: 'Courier New', monospace; line-height: 1.5; }
+        .error { color: #ff6b6b; text-align: center; font-size: 1.2em; }
+        .back-link { color: var(--blue); text-decoration: none; margin-bottom: 20px; display: inline-block; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Host</a>
+    
+    <div class="header">
+        <h1>Xenon Raw Viewer</h1>
+    </div>
+    
+    <div class="controls">
+        <button onclick="copyToClipboard()">Copy Code</button>
+        <button onclick="downloadCode()">Download</button>
+        <button onclick="location.href='index.html'">Create New</button>
+    </div>
+    
+    <div class="glass">
+        <pre id="codeDisplay"><span class="error">Loading...</span></pre>
+    </div>
+</div>
+
+<script>
+    function decodeData() {
+        const params = new URLSearchParams(window.location.search);
+        const encoded = params.get('data');
+        
+        if (!encoded) {
+            document.getElementById('codeDisplay').innerHTML = '<span class="error">No data provided. <a href="index.html" style="color:#00d2ff;">Go back and generate a link.</a></span>';
+            return null;
+        }
+        
+        try {
+            const decoded = decodeURIComponent(escape(atob(encoded)));
+            return decoded;
+        } catch (e) {
+            document.getElementById('codeDisplay').innerHTML = '<span class="error">Invalid data. The link may be corrupted.</span>';
+            return null;
+        }
+    }
+    
+    function copyToClipboard() {
+        const code = decodeData();
+        if (code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        }
+    }
+    
+    function downloadCode() {
+        const code = decodeData();
+        if (code) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(code));
+            element.setAttribute('download', 'code.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+    }
+    
+    // Display code on page load
+    window.addEventListener('load', function() {
+        const code = decodeData();
+        if (code) {
+            document.getElementById('codeDisplay').textContent = code;
+        }
+    });
+</script>
+
+</body>
+</html>
